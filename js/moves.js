@@ -100,6 +100,85 @@ export const MOVES = [
     fig: { la: [[44, 12], [58, 0]], ra: [[74, 14], [86, 2]], dxTop: 13 },
   },
   {
+    id: 'cross_arms', name: 'Cross Arms', pool: 'groove',
+    detect: f => {
+      // wrists swapped sides at chest height
+      const inBand = w => Math.min(ramp(w.y - f.shMid.y, -0.02, 0.04), ramp(f.hipMid.y - w.y, 0.0, 0.06));
+      const crossed = ramp(f.rw.x - f.lw.x, 0, 0.3 * f.shW);
+      return Math.min(inBand(f.lw), inBand(f.rw), crossed);
+    },
+    fig: { la: [[50, 47], [66, 41]], ra: [[50, 49], [34, 42]] },
+  },
+  {
+    id: 'disco_left', name: 'Disco Left!', pool: 'hype',
+    detect: f => Math.min(
+      armUp(f, f.lw),
+      ramp(f.lw.x - f.ls.x, 0.3 * f.shW, 0.8 * f.shW),   // up AND out to the side
+      armDown(f, f.rw, f.rs),
+    ),
+    fig: { la: [[24, 20], [10, 4]], ra: [[72, 52], [60, 70]] },
+  },
+  {
+    id: 'disco_right', name: 'Disco Right!', pool: 'hype',
+    detect: f => Math.min(
+      armUp(f, f.rw),
+      ramp(f.rs.x - f.rw.x, 0.3 * f.shW, 0.8 * f.shW),
+      armDown(f, f.lw, f.ls),
+    ),
+    fig: { la: [[28, 52], [40, 70]], ra: [[76, 20], [90, 4]] },
+  },
+  {
+    id: 'hands_head', name: 'Hands on Head', pool: 'chill',
+    detect: f => {
+      const near = w => ramp(dist(w, f.nose), 0.75 * f.shW, 0.4 * f.shW);
+      return Math.min(near(f.lw), near(f.rw));
+    },
+    fig: { la: [[26, 28], [41, 13]], ra: [[74, 28], [59, 13]] },
+  },
+  {
+    id: 'v_arms', name: 'Big V!', pool: 'hype',
+    detect: f => Math.min(
+      armUp(f, f.lw), armUp(f, f.rw),
+      ramp(f.lw.x - f.rw.x, 1.1 * f.shW, 1.7 * f.shW),   // spread wide
+    ),
+    fig: { la: [[26, 18], [13, 2]], ra: [[74, 18], [87, 2]] },
+  },
+  {
+    id: 'reach_left', name: 'Reach Left', pool: 'groove',
+    detect: f => {
+      const yBand = w => ramp(Math.abs(w.y - f.shMid.y), 0.14, 0.05);
+      return Math.min(
+        yBand(f.lw), yBand(f.rw),
+        ramp(f.lw.x - f.ls.x, 0.5 * f.shW, 1.0 * f.shW),
+        ramp(f.rw.x - f.rs.x, 0.5 * f.shW, 1.1 * f.shW), // right arm crosses the body
+      );
+    },
+    fig: { la: [[20, 33], [4, 32]], ra: [[46, 42], [24, 40]] },
+  },
+  {
+    id: 'reach_right', name: 'Reach Right', pool: 'groove',
+    detect: f => {
+      const yBand = w => ramp(Math.abs(w.y - f.shMid.y), 0.14, 0.05);
+      return Math.min(
+        yBand(f.lw), yBand(f.rw),
+        ramp(f.rs.x - f.rw.x, 0.5 * f.shW, 1.0 * f.shW),
+        ramp(f.ls.x - f.lw.x, 0.5 * f.shW, 1.1 * f.shW), // left arm crosses the body
+      );
+    },
+    fig: { la: [[54, 42], [76, 40]], ra: [[80, 33], [96, 32]] },
+  },
+  {
+    id: 'high_knee', name: 'Knee Up!', pool: 'hype',
+    detect: f => {
+      // either knee raised toward hip height
+      const up = k => (k.visibility ?? 1) < 0.5
+        ? 0
+        : ramp(f.hipMid.y + 0.35 * f.torso - k.y, 0, 0.25 * f.torso);
+      return Math.max(up(f.lk), up(f.rk));
+    },
+    fig: { la: [[24, 38], [30, 18]], ra: [[76, 38], [70, 18]], kneeUp: 'l' },
+  },
+  {
     id: 'squat', name: 'Squat!', pool: 'hype',
     detect: (f, ctx) => {
       if (ctx && ctx.baseline) {
@@ -131,10 +210,12 @@ export function drawMoveIcon(c, move, size, color = '#ffffff') {
   const lsh = P(37 + dx, 34 + drop), rsh = P(63 + dx, 34 + drop);
   const lhip = fig.squat ? P(41, 84) : P(41, 74);
   const rhip = fig.squat ? P(59, 84) : P(59, 74);
-  const lknee = fig.squat ? P(29, 97) : P(39, 97);
-  const rknee = fig.squat ? P(71, 97) : P(61, 97);
-  const lfoot = fig.squat ? P(33, 121) : P(37, 121);
-  const rfoot = fig.squat ? P(67, 121) : P(63, 121);
+  let lknee = fig.squat ? P(29, 97) : P(39, 97);
+  let rknee = fig.squat ? P(71, 97) : P(61, 97);
+  let lfoot = fig.squat ? P(33, 121) : P(37, 121);
+  let rfoot = fig.squat ? P(67, 121) : P(63, 121);
+  if (fig.kneeUp === 'l') { lknee = P(32, 76); lfoot = P(30, 96); }
+  if (fig.kneeUp === 'r') { rknee = P(68, 76); rfoot = P(70, 96); }
   const shMid = [(lsh[0] + rsh[0]) / 2, lsh[1]];
   const hipMid = [(lhip[0] + rhip[0]) / 2, lhip[1]];
 
