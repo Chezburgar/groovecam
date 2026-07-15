@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrooveCam — Turn Any Song Into a Dance Game</title>
+<meta name="description" content="Upload a song, get an auto-generated dance routine, and score points with your camera.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕺</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ SETUP SCREEN ============ -->
+<section id="screen-setup" class="screen active">
+  <div class="setup-inner">
+    <h1 class="logo">Groove<span>Cam</span> <span class="logo-emoji">🕺</span></h1>
+    <p class="tagline">Upload any song. We analyze the beat, build a dance routine, and your camera scores every move.</p>
+
+    <label id="drop-zone" for="file-input">
+      <div class="drop-icon">🎵</div>
+      <div class="drop-text"><strong>Drop a song here</strong> or click to browse</div>
+      <div class="drop-sub">MP3, WAV, OGG, M4A — analyzed entirely in your browser</div>
+      <input type="file" id="file-input" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.aac" hidden>
+    </label>
+
+    <div class="difficulty-row">
+      <span class="diff-label">Difficulty</span>
+      <div class="diff-buttons" role="radiogroup">
+        <button class="diff-btn" data-diff="easy">😌 Chill</button>
+        <button class="diff-btn selected" data-diff="normal">🔥 Groove</button>
+        <button class="diff-btn" data-diff="hard">💀 Hype</button>
+      </div>
+    </div>
+
+    <p class="privacy-note">🔒 Nothing is uploaded — audio analysis and camera pose detection run 100% locally in your browser.</p>
+    <p id="setup-error" class="error-text" hidden></p>
+  </div>
+</section>
+
+<!-- ============ ANALYZING SCREEN ============ -->
+<section id="screen-analyzing" class="screen">
+  <div class="center-box">
+    <div class="analyzer-viz"><span></span><span></span><span></span><span></span><span></span></div>
+    <h2 id="analyze-status">Listening to your song…</h2>
+    <p id="analyze-detail" class="muted"></p>
+  </div>
+</section>
+
+<!-- ============ READY / CALIBRATION SCREEN ============ -->
+<section id="screen-ready" class="screen">
+  <div class="ready-layout">
+    <div class="cam-wrap">
+      <canvas id="ready-canvas"></canvas>
+      <div id="cam-status" class="cam-status">Starting camera…</div>
+    </div>
+    <div class="ready-panel">
+      <h2 id="song-title">Your Song</h2>
+      <div class="song-stats">
+        <div class="stat"><span id="stat-bpm">—</span><label>BPM</label></div>
+        <div class="stat"><span id="stat-moves">—</span><label>Moves</label></div>
+        <div class="stat"><span id="stat-length">—</span><label>Length</label></div>
+      </div>
+      <ol class="howto">
+        <li>Stand back so your <strong>head and hips</strong> are in frame</li>
+        <li>Moves slide toward the <strong>target ring</strong> — strike the pose when they arrive</li>
+        <li>Hold each pose <strong>on the beat</strong> for PERFECT scores</li>
+      </ol>
+      <button id="btn-start" class="big-btn" disabled>Detecting your body…</button>
+      <button id="btn-back" class="ghost-btn">← Pick a different song</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME SCREEN ============ -->
+<section id="screen-game" class="screen">
+  <canvas id="game-canvas"></canvas>
+  <div id="countdown" hidden></div>
+  <div class="hud">
+    <div class="hud-score"><label>SCORE</label><span id="hud-score">0</span></div>
+    <div class="hud-combo" id="hud-combo-wrap" hidden><span id="hud-combo">0</span><label>COMBO</label></div>
+  </div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <button id="btn-quit" class="ghost-btn quit-btn">✕ Quit</button>
+</section>
+
+<!-- ============ RESULTS SCREEN ============ -->
+<section id="screen-results" class="screen">
+  <div class="center-box results-box">
+    <div id="result-rank">S</div>
+    <h2 id="result-headline">Dance Machine!</h2>
+    <div class="result-score">Score <span id="result-score">0</span></div>
+    <div class="result-grid">
+      <div class="rcell perfect"><span id="r-perfect">0</span><label>Perfect</label></div>
+      <div class="rcell great"><span id="r-great">0</span><label>Great</label></div>
+      <div class="rcell ok"><span id="r-ok">0</span><label>OK</label></div>
+      <div class="rcell miss"><span id="r-miss">0</span><label>Miss</label></div>
+    </div>
+    <div class="result-extra">Max combo: <span id="r-maxcombo">0</span></div>
+    <div class="result-buttons">
+      <button id="btn-replay" class="big-btn">↻ Dance Again</button>
+      <button id="btn-newsong" class="ghost-btn">Pick a new song</button>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
